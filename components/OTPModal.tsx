@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/input-otp";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { verifySecret } from "@/lib/actions/user.actions";
+import { verifySecret, sedEmailOTP } from "@/lib/actions/user.actions";
 import { useRouter } from "next/navigation";
+import { send } from "process";
 
 const OTPModal = ({
   email,
@@ -46,7 +47,9 @@ const OTPModal = ({
     setIsOpen(false);
   };
 
-  const handleResentOTP = async () => {};
+  const handleResentOTP = async () => {
+    await sedEmailOTP({ email });
+  };
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>

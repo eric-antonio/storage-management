@@ -22,7 +22,7 @@ const handleError = (error: unknown, message: string) => {
   throw error;
 };
 
-const sedEmailOTP = async ({ email }: { email: string }) => {
+export const sedEmailOTP = async ({ email }: { email: string }) => {
   const { account } = await createAdminClient();
 
   try {
@@ -33,6 +33,14 @@ const sedEmailOTP = async ({ email }: { email: string }) => {
   }
 };
 
+/*
+  ? This function creates a new user account with the provided full name and email.
+  * It checks if a user with the given email already exists, and if not, it sends an OTP to the email.
+  * If the user does not exist, it creates a new document in the users collection with the provided details.
+  * It returns the account ID of the newly created or existing user.
+  * Usage: Call this function when a user signs up or registers for an account.
+  * Example: await createAccount({ fullName: 'John Doe', email: '
+*/
 export const createAccount = async ({
   fullName,
   email,
@@ -63,6 +71,16 @@ export const createAccount = async ({
   return parseStringify({ accountId });
 };
 
+/* 
+ ? This function verifies the OTP sent to the user's email and creates a session.
+ * It sets a cookie with the session secret for authentication.
+ * It returns the session ID if successful, or throws an error if verification fails.
+ * Usage: Call this function after the user submits the OTP they received via email.
+ * Example: await verifySecret({ accountId: 'user_account_id', password: '123456' });
+ * Note: Ensure to handle the session cookie securely in your application.
+ * Important: This function is intended to be used in a server-side context, such as in
+ * a Next.js API route or server action, to maintain security and prevent exposure of sensitive data
+ * to the client.*/
 export const verifySecret = async ({
   accountId,
   password,
