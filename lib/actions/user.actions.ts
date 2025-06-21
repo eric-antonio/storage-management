@@ -6,6 +6,8 @@ import { appwriteConfig } from "../appwite/config";
 import { parseStringify } from "../utils";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { string } from "zod";
+import { error } from "console";
 
 const getUserByEmail = async (email: string) => {
   const { databases } = await createAdminClient();
@@ -128,5 +130,21 @@ export const signOutUser = async () => {
     handleError(error, "Failed to sign out user");
   } finally {
     redirect("/sign-in");
+  }
+};
+export const signInUser = async ({ email }: { email: string }) => {
+  try {
+    const exisitingUser = await getUserByEmail(email);
+    if (exisitingUser) {
+      await sedEmailOTP({ email });
+      return parseStringify({ accountId: exisitingUser.accountId });
+    }
+
+    return parseStringify({
+      accountId: null,
+      error: "User not found. Please create an account.",
+    });
+  } catch (error) {
+    handleError(error, " Failed to sign-in User");
   }
 };
