@@ -2,9 +2,13 @@
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
 import Image from "next/image";
 import Thumbnail from "./Thumbnail";
+import { MAX_FILE_SIZE } from "@/constants";
+import { uploadFile } from "@/lib/actions/file.actions";
+import { usePathname } from "next/navigation";
 
 interface FileUploaderProps {
   ownerId: string;
@@ -14,6 +18,7 @@ interface FileUploaderProps {
 
 const FileUploader = ({ ownerId, accountId, className }: FileUploaderProps) => {
   const [files, setFiles] = useState<File[]>([]);
+  const path = usePathname();
 
   const handleRemoveFilev = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>,
@@ -22,11 +27,41 @@ const FileUploader = ({ ownerId, accountId, className }: FileUploaderProps) => {
     e.stopPropagation();
     setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
   };
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    // Do something with the files
-    setFiles(acceptedFiles);
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      // Do something with the files
+      setFiles(acceptedFiles);
+      const upLoadPromises = acceptedFiles.map(async (file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          setFiles((prevFiles) =>
+            prevFiles.filter((f) => f.name !== file.name)
+          );
+          return toast.error(
+            <p className="body-2 text-white">
+              <span className="font-semibold">{file.name}</span>
+              is too large. Max size is 50MB.
+            </p>
+          );
+        }
+        return uploadFile({ file, ownerId, accountId, path }).then(
+          (uploadFile) => {
+            if (uploadFile) {
+              if (uploadFile) {
+                setFiles((prevFiles) =>
+                  prevFiles.filter((f) => f.name !== file.name)
+                );
+              }
+            }
+          }
+        );
+      });
+      await Promise.all(upLoadPromises);
+      setFiles([]); // Clear files after upload
+    },
+    [ownerId, accountId, path]
+  );
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <div {...getRootProps()} className="cursor-pointer">
@@ -78,11 +113,6 @@ const FileUploader = ({ ownerId, accountId, className }: FileUploaderProps) => {
             );
           })}
         </ul>
-      )}
-      {isDragActive ? (
-        <p>Drop here</p>
-      ) : (
-        <p>Drag 'n' drop some files here, or click to select files</p>
       )}
     </div>
   );
