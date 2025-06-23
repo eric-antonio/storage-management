@@ -68,7 +68,6 @@ const createQueries = (curentUser: Models.Document) => {
   return queries;
 };
 
-
 export const getFiles = async () => {
   const { databases } = await createAdminClient();
   try {

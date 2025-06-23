@@ -21,7 +21,8 @@ const Thumbnail = ({
   return (
     <figure className={cn("thumbnail", className)}>
       <Image
-        src={isImage ? url : getFileIcon(extension, type)}
+        // src={isImage && url ? url : getFileIcon(extension, type)}
+        src="/placeholder.png"
         alt="Thumbnail"
         width={100}
         height={100}
@@ -34,5 +35,4 @@ const Thumbnail = ({
     </figure>
   );
 };
-
 export default Thumbnail;

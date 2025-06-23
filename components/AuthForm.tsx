@@ -58,7 +58,7 @@ const AuthForm = ({ type }: { type: FromType }) => {
           : await signInUser({ email: values.email });
       setAccountId(user.accountId);
     } catch (error) {
-      console.error("Error during form submission:", error);
+     
       setErrorMessage("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
