@@ -2,10 +2,10 @@
 import { InputFile } from "node-appwrite/file";
 import { createAdminClient } from "../appwite";
 import { appwriteConfig } from "../appwite/config";
-import { ID } from "node-appwrite";
+import { ID, Models, Query } from "node-appwrite";
 import { constructFileUrl, getFileType, parseStringify } from "../utils";
-import { url } from "inspector";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "./user.actions";
 
 const handleError = (error: unknown, message: string) => {
   console.error(error, message);
@@ -55,5 +55,35 @@ export const uploadFile = async ({
     return parseStringify(newFile);
   } catch (error) {
     handleError(error, "Failed to upload file");
+  }
+};
+
+const createQueries = (curentUser: Models.Document) => {
+  const queries = [
+    Query.or([
+      Query.equal("ownerId", [curentUser.$id]),
+      Query.contains("users", [curentUser.email]),
+    ]),
+  ];
+  return queries;
+};
+
+
+export const getFiles = async () => {
+  const { databases } = await createAdminClient();
+  try {
+    const curentUser = await getCurrentUser();
+
+    if (!curentUser) throw new Error("User not fund");
+    const queries = createQueries(curentUser);
+
+    const files = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      queries
+    );
+    return parseStringify(files);
+  } catch (error) {
+    handleError(error, "Failed to get files");
   }
 };
