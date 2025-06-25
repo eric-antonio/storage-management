@@ -44,6 +44,8 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
     setName(file.name);
     setIsLoading(false);
   };
+
+  
   const handldAction = async () => {
     if (!action) return;
     setIsLoading(true);
@@ -51,10 +53,11 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
     const actions = {
       rename: () =>
         renameFile({ fileId: file.$id, name, extension: file.extension, path }),
-      share: () => console.log("Share action not implemented yet"),
+      share:()=>console.log("Share action not implemented yet"),
       delete: () => console.log("Delete action not implemented yet"),
       details: () => console.log("Details action not implemented yet"),
     };
+
   };
 
   const renderDialogContent = () => {
