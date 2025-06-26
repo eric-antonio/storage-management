@@ -2,24 +2,27 @@ import Link from "next/link";
 import { Models } from "node-appwrite";
 import React from "react";
 import Thumbnail from "./Thumbnail";
-import { convertFileSize } from "@/lib/utils";
+import { constructDownloadUrl, convertFileSize } from "@/lib/utils";
 import FormattedDateTime from "./FormattedDateTime";
 import ActionDropDown from "./ActionDropDown";
 
 const Card = ({ file }: { file: Models.Document }) => {
   console.log("Ther url is here", file.url);
+  const fileUrl = constructDownloadUrl(file.bucketFileId);
+
+  // Aqui ela ja chega como undefined!
   return (
-    <Link href={file.url} target="_blank" className="file-card">
+    <Link href={fileUrl} target="_blank" className="file-card">
       <div className="flex justify-between">
         <Thumbnail
           type={file.type}
           extension={file.extension}
-          url={file.url}
+          url={fileUrl}
           className="!size-20"
           imageClassName="!size-20"
         />
         <div className="flex flex-col items-end justify-between">
-          <ActionDropDown />
+          <ActionDropDown file={file} />
           <p className="body-1">{convertFileSize(file.size)}</p>
         </div>
       </div>

@@ -9,3 +9,4 @@ export const appwriteConfig = {
   bucketId: process.env.NEXT_PUBLIC_APPWRITE_STORAGE_BUCKET!,
   secretKey: process.env.NEXT_APPWRITE_SECRET_KEY!,
 };
+  
