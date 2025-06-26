@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { Dialog } from "@/components/ui/dialog";
+import React, { useState } from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,11 +14,75 @@ import { Models } from "node-appwrite";
 import { actionsDropdownItems } from "@/constants";
 import Link from "next/link";
 import { constructDownloadUrl } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [action, setAction] = React.useState<ActionType | null>(null);
+  const [name, setName] = useState(file.name);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const cleseAllModals = () => {
+    setIsModalOpen(false);
+    setIsDropdownOpen(false);
+    setAction(null);
+    setName(file.name);
+    setIsLoading(false);
+  };
+  const handldAction = async () => {};
+
+  const renderDialogContent = () => {
+    if (!action) return null;
+    const { value, label } = action;
+    return (
+      <DialogContent className="bg-white shad-dialog button">
+        <DialogHeader className="flex flex-col gap-3">
+          <DialogTitle className="text-center text-ligth-100">
+            {label}
+          </DialogTitle>
+          {value === "rename" && (
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              type="text"
+              className="rounded-xl border border-gray-300 bg-white p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          )}
+        </DialogHeader>
+        {["rename", "delete", "share", "details"].includes(value) && (
+          <DialogFooter className="flex flex-col gap-3 md:flex-row">
+            <Button onClick={cleseAllModals} className="modal-cancel-button">
+              Cancel
+            </Button>
+            <Button onClick={handldAction} className="modal-submit-button">
+              <p className="capitalize">{value}</p>
+              {isLoading && (
+                <Image
+                  src="/assets/icons/loader.svg"
+                  alt="loading"
+                  width={24}
+                  height={24}
+                  className="animate-spin "
+                />
+              )}
+            </Button>
+          </DialogFooter>
+        )}
+      </DialogContent>
+    );
+  };
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -80,6 +144,8 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {renderDialogContent()}
     </Dialog>
   );
 };
