@@ -4,8 +4,9 @@ import React from "react";
 import Thumbnail from "./Thumbnail";
 import { convertFileSize } from "@/lib/utils";
 import FormattedDateTime from "./FormattedDateTime";
+import ActionDropDown from "./ActionDropDown";
 
-const Card = ({ file, }: { file: Models.Document }) => {
+const Card = ({ file }: { file: Models.Document }) => {
   console.log("Ther url is here", file.url);
   return (
     <Link href={file.url} target="_blank" className="file-card">
@@ -18,7 +19,7 @@ const Card = ({ file, }: { file: Models.Document }) => {
           imageClassName="!size-20"
         />
         <div className="flex flex-col items-end justify-between">
-          ActionDropDown
+          <ActionDropDown />
           <p className="body-1">{convertFileSize(file.size)}</p>
         </div>
       </div>

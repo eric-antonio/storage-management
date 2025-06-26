@@ -21,8 +21,8 @@ const Thumbnail = ({
   return (
     <figure className={cn("thumbnail", className)}>
       <Image
-        // src={isImage && url ? url : getFileIcon(extension, type)}
-        src="/placeholder.png"
+        src={isImage && url ? url : getFileIcon(extension, type)}
+        // src="/placeholder.png"
         alt="Thumbnail"
         width={100}
         height={100}
