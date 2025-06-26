@@ -10,7 +10,6 @@ const Card = ({ file }: { file: Models.Document }) => {
   console.log("Ther url is here", file.url);
   const fileUrl = constructDownloadUrl(file.bucketFileId);
 
-  // Aqui ela ja chega como undefined!
   return (
     <Link href={fileUrl} target="_blank" className="file-card">
       <div className="flex justify-between">
