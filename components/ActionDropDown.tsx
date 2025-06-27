@@ -28,6 +28,7 @@ import { Button } from "./ui/button";
 import { rename } from "fs";
 import { renameFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
+import { set } from "zod";
 
 const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -45,7 +46,6 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
     setIsLoading(false);
   };
 
-  
   const handldAction = async () => {
     if (!action) return;
     setIsLoading(true);
@@ -53,11 +53,13 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
     const actions = {
       rename: () =>
         renameFile({ fileId: file.$id, name, extension: file.extension, path }),
-      share:()=>console.log("Share action not implemented yet"),
+      share: () => console.log("Share action not implemented yet"),
       delete: () => console.log("Delete action not implemented yet"),
       details: () => console.log("Details action not implemented yet"),
     };
-
+    sucsess = await actions[action.value as keyof typeof actions]();
+    if (sucsess) cleseAllModals();
+    setIsLoading(false);
   };
 
   const renderDialogContent = () => {
