@@ -30,6 +30,7 @@ import { renameFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { set } from "zod";
 import { FileDetails } from "./ActionsModalContent";
+import ShareInput from "./ShareInput";
 
 const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -100,9 +101,10 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
           )}
 
           {value === "details" && <FileDetails file={file} />}
+          {value && "share" && <ShareInput file={file} />}
         </DialogHeader>
 
-        {["rename", "delete", "share"].includes(value) && (
+        {["rename", "delete"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
             <Button onClick={closeAllModals} className="modal-cancel-button">
               Cancel
