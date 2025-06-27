@@ -29,6 +29,7 @@ import { rename } from "fs";
 import { renameFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { set } from "zod";
+import { FileDetails } from "./ActionsModalContent";
 
 const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -38,39 +39,57 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
   const [isLoading, setIsLoading] = useState(false);
   const path = usePathname();
 
-  const cleseAllModals = () => {
+  const closeAllModals = () => {
     setIsModalOpen(false);
     setIsDropdownOpen(false);
     setAction(null);
     setName(file.name);
-    setIsLoading(false);
   };
 
   const handldAction = async () => {
     if (!action) return;
     setIsLoading(true);
-    let sucsess = false;
+    let success = false;
+
     const actions = {
-      rename: () =>
-        renameFile({ fileId: file.$id, name, extension: file.extension, path }),
-      share: () => console.log("Share action not implemented yet"),
-      delete: () => console.log("Delete action not implemented yet"),
-      details: () => console.log("Details action not implemented yet"),
+      rename: async () =>
+        await renameFile({
+          fileId: file.$id,
+          name,
+          extension: file.extension,
+          path,
+        }),
+      share: async () => {
+        console.log("Share action not implemented yet");
+        return true;
+      },
+      delete: async () => {
+        console.log("Delete action not implemented yet");
+        return true;
+      },
+      details: async () => true,
     };
-    sucsess = await actions[action.value as keyof typeof actions]();
-    if (sucsess) cleseAllModals();
+
+    const selectedAction = actions[action.value as keyof typeof actions];
+    if (selectedAction) {
+      success = await selectedAction();
+    }
+
     setIsLoading(false);
+    if (success) closeAllModals();
   };
 
   const renderDialogContent = () => {
-    if (!action) return null;
+    if (!action?.value) return null;
     const { value, label } = action;
+
     return (
       <DialogContent className="bg-white shad-dialog button">
         <DialogHeader className="flex flex-col gap-3">
           <DialogTitle className="text-center text-ligth-100">
             {label}
           </DialogTitle>
+
           {value === "rename" && (
             <Input
               value={name}
@@ -79,10 +98,13 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
               className="rounded-xl border border-gray-300 bg-white p-2 text-sm focus:border-blue-500 focus:ring-blue-500"
             />
           )}
+
+          {value === "details" && <FileDetails file={file} />}
         </DialogHeader>
-        {["rename", "delete", "share", "details"].includes(value) && (
+
+        {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
-            <Button onClick={cleseAllModals} className="modal-cancel-button">
+            <Button onClick={closeAllModals} className="modal-cancel-button">
               Cancel
             </Button>
             <Button onClick={handldAction} className="modal-submit-button">
@@ -93,7 +115,7 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
                   alt="loading"
                   width={24}
                   height={24}
-                  className="animate-spin "
+                  className="animate-spin"
                 />
               )}
             </Button>
@@ -103,8 +125,22 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
     );
   };
 
+  React.useEffect(() => {
+    if (!isModalOpen) {
+      setAction(null);
+      setName(file.name);
+      setIsLoading(false);
+    }
+  }, [isModalOpen]);
+
   return (
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <Dialog
+      open={isModalOpen}
+      onOpenChange={(state) => {
+        if (!state) closeAllModals();
+        else setIsModalOpen(true);
+      }}
+    >
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger className="shad-no-focus">
           <Image
@@ -123,14 +159,20 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
             <DropdownMenuItem
               key={actionsItem.value}
               onClick={() => {
+                const shouldOpenModal = [
+                  "rename",
+                  "delete",
+                  "share",
+                  "details",
+                ].includes(actionsItem.value);
+
                 setAction(actionsItem);
 
-                if (
-                  ["rename", "delete", "share", "delete", "details"].includes(
-                    actionsItem.value
-                  )
-                ) {
-                  setIsModalOpen(true);
+                // Espera o próximo tick do React antes de abrir o modal
+                if (shouldOpenModal) {
+                  setTimeout(() => {
+                    setIsModalOpen(true);
+                  }, 0);
                 }
               }}
             >
