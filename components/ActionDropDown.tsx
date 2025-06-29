@@ -26,7 +26,11 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
-import { renameFile, upDateFileUsers } from "@/lib/actions/file.actions";
+import {
+  deleteFileUsers,
+  renameFile,
+  upDateFileUsers,
+} from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 
 import { FileDetails, ShareInput } from "./ActionsModalContent";
@@ -80,8 +84,11 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
         });
       },
       delete: async () => {
-        console.log("Delete action not implemented yet");
-        return true;
+        deleteFileUsers({
+          fileId: file.$id,
+          path,
+          bucketFileId: file.bucketFileId,
+        });
       },
       details: async () => true,
     };
@@ -123,6 +130,12 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
               onRemove={handleRemoveUser}
             />
           )}
+          {value === "delete" && (
+            <p className="delete-confirmation">
+              Are you sure you want to delete {``}
+              <span className="delete-file-name">{file.name}</span>
+            </p>
+          )}
         </DialogHeader>
 
         {["rename", "delete", "share"].includes(value) && (
@@ -130,7 +143,11 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
             <Button onClick={closeAllModals} className="modal-cancel-button">
               Cancel
             </Button>
-            <Button onClick={handldAction} className="modal-submit-button">
+            <Button
+              onClick={handldAction}
+              disabled={isLoading}
+              className="modal-submit-button"
+            >
               <p className="capitalize">{value}</p>
               {isLoading && (
                 <Image
