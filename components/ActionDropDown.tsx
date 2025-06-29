@@ -26,7 +26,7 @@ import {
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
-import { renameFile } from "@/lib/actions/file.actions";
+import { renameFile, upDateFileUsers } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 
 import { FileDetails, ShareInput } from "./ActionsModalContent";
@@ -47,7 +47,17 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
     setName(file.name);
   };
 
-  const handleRemoveUser = () => {};
+  const handleRemoveUser = async (email: string) => {
+    const updateEmails = emails.filter((e) => e !== email);
+
+    const success = await upDateFileUsers({
+      fileId: file.$id,
+      emails: updateEmails,
+      path,
+    });
+    if (success) setEmails(updateEmails);
+    closeAllModals();
+  };
 
   const handldAction = async () => {
     if (!action) return;
@@ -63,8 +73,11 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
           path,
         }),
       share: async () => {
-        console.log("Share action not implemented yet");
-        return true;
+        upDateFileUsers({
+          fileId: file.$id,
+          emails,
+          path,
+        });
       },
       delete: async () => {
         console.log("Delete action not implemented yet");
@@ -112,7 +125,7 @@ const ActionDropDown = ({ file }: { file: Models.Document }) => {
           )}
         </DialogHeader>
 
-        {["rename", "delete"].includes(value) && (
+        {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
             <Button onClick={closeAllModals} className="modal-cancel-button">
               Cancel

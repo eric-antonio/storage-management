@@ -64,9 +64,11 @@ export const ShareInput = ({
           className="share-input-field"
         />
         <div className="pt-4">
-          <div className="flex justify-between">
+          <div className="flex justify-between mb-4">
             <p className="subtitle-2 text-light-100">Shared with</p>
-            <p className="subtitle-2 text-light-200">{file.users.length}</p>
+            <p className="subtitle-2 text-light-200">
+              {file.users.length} users
+            </p>
           </div>
           <ul className="pt-2">
             {file.users.map((email: string) => (
@@ -75,7 +77,10 @@ export const ShareInput = ({
                 className="flex items-center justify-between gap-2"
               >
                 <p className="subtitle-2">{email}</p>
-                <Button onClick={() => onRemove(email)}>
+                <Button
+                  className="share-remove-user"
+                  onClick={() => onRemove(email)}
+                >
                   <Image
                     src="/assets/icons/remove.svg"
                     alt="Remove"
