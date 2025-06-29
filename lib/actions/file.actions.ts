@@ -3,10 +3,9 @@ import { InputFile } from "node-appwrite/file";
 import { createAdminClient } from "../appwite";
 import { appwriteConfig } from "../appwite/config";
 import { ID, Models, Query } from "node-appwrite";
-import { constructFileUrl, getFileType, parseStringify } from "../utils";
+import { getFileType, parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./user.actions";
-import path from "path";
 
 const handleError = (error: unknown, message: string) => {
   console.error(error, message);
@@ -109,5 +108,27 @@ export const renameFile = async ({
     return parseStringify(updatedFile);
   } catch (error) {
     handleError(error, "Failed to rename file");
+  }
+};
+
+export const upDateFileUsers = async ({
+  fileId,
+  emails,
+  path,
+}: UpdateFileUsersProps) => {
+  const { databases } = await createAdminClient();
+  try {
+    const updatedFile = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      fileId,
+      {
+        users: emails,
+      }
+    );
+    revalidatePath(path);
+    return parseStringify(updatedFile);
+  } catch (error) {
+    handleError(error, "Failed to update users");
   }
 };
