@@ -3,7 +3,7 @@ import { InputFile } from "node-appwrite/file";
 import { createAdminClient } from "../appwite";
 import { appwriteConfig } from "../appwite/config";
 import { ID, Models, Query } from "node-appwrite";
-import { getFileType, parseStringify } from "../utils";
+import { constructFileUrl, getFileType, parseStringify } from "../utils";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./user.actions";
 import { stat } from "fs";
@@ -31,7 +31,7 @@ export const uploadFile = async ({
     const fileDocument = {
       type: getFileType(bucketFile.name).type,
       name: bucketFile.name,
-      url: bucketFile.$id,
+      url: constructFileUrl(bucketFile.$id),
       extension: getFileType(bucketFile.name).extension,
       size: bucketFile.sizeOriginal,
       ownerId,
