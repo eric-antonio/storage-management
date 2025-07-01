@@ -8,6 +8,7 @@ import { Models } from "node-appwrite";
 import Thumbnail from "./Thumbnail";
 import { constructDownloadUrl } from "@/lib/utils";
 import FormattedDateTime from "./FormattedDateTime";
+import { useDebounce } from "use-debounce";
 
 const Search = () => {
   const [query, setQuery] = React.useState("");
@@ -16,6 +17,7 @@ const Search = () => {
   const [results, setResults] = React.useState<Models.Document[]>([]);
   const [open, setOpen] = React.useState(false);
   const path = usePathname();
+  const [debounceQuey] = useDebounce(query, 300);
 
   const router = useRouter();
   useEffect(() => {
@@ -31,7 +33,7 @@ const Search = () => {
     };
 
     fetchFiles();
-  }, [query]);
+  }, [debounceQuey]);
 
   useEffect(() => {
     if (!searchQuery) {
