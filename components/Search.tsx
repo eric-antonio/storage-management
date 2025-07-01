@@ -22,12 +22,12 @@ const Search = () => {
   const router = useRouter();
   useEffect(() => {
     const fetchFiles = async () => {
-      if (!query) {
+      if (debounceQuey.length === 0) {
         setResults([]);
         setOpen(false);
         return router.push(path.replace(searchParams.toString(), ""));
       }
-      const files = await getFiles({ searchText: query });
+      const files = await getFiles({ searchText: debounceQuey, types: [] });
       setResults(Array.isArray(files.documents) ? files.documents : []);
       setOpen(true);
     };
