@@ -59,23 +59,24 @@ export const uploadFile = async ({
   }
 };
 
-const createQueries = (curentUser: Models.Document) => {
+const createQueries = (curentUser: Models.Document, types: string[]) => {
   const queries = [
     Query.or([
       Query.equal("ownerId", [curentUser.$id]),
       Query.contains("users", [curentUser.email]),
     ]),
   ];
+  if (types.length > 0) queries.push(Query.equal("type", types));
   return queries;
 };
 
-export const getFiles = async () => {
+export const getFiles = async ({ types = [] }: GetFilesProps) => {
   const { databases } = await createAdminClient();
   try {
     const curentUser = await getCurrentUser();
 
     if (!curentUser) throw new Error("User not fund");
-    const queries = createQueries(curentUser);
+    const queries = createQueries(curentUser, types);
 
     const files = await databases.listDocuments(
       appwriteConfig.databaseId,
