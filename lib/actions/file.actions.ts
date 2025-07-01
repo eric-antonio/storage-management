@@ -59,7 +59,13 @@ export const uploadFile = async ({
   }
 };
 
-const createQueries = (curentUser: Models.Document, types: string[]) => {
+const createQueries = (
+  curentUser: Models.Document,
+  types: string[],
+  searchText: string,
+  sortText: string,
+  limit: number
+) => {
   const queries = [
     Query.or([
       Query.equal("ownerId", [curentUser.$id]),
@@ -67,16 +73,44 @@ const createQueries = (curentUser: Models.Document, types: string[]) => {
     ]),
   ];
   if (types.length > 0) queries.push(Query.equal("type", types));
+  if (searchText) queries.push(Query.contains("name", searchText));
+  // if (sortText) queries.push(Query.sort(sortText));
+  if (limit) queries.push(Query.limit(limit));
+
+  if (sortText) {
+    const [sortBy, orderBy] = sortText.split("-");
+    queries.push(
+      orderBy == "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy)
+    );
+  }
   return queries;
 };
 
-export const getFiles = async ({ types = [] }: GetFilesProps) => {
+export interface GetFilesProps {
+  types?: string[];
+  searchText?: string;
+  sortText?: string;
+  limit?: number;
+}
+
+export const getFiles = async ({
+  types = [],
+  searchText = "",
+  sortText = "$createdAt-desc",
+  limit = 10,
+}: GetFilesProps) => {
   const { databases } = await createAdminClient();
   try {
     const curentUser = await getCurrentUser();
 
     if (!curentUser) throw new Error("User not fund");
-    const queries = createQueries(curentUser, types);
+    const queries = createQueries(
+      curentUser,
+      types,
+      searchText,
+      sortText,
+      limit
+    );
 
     const files = await databases.listDocuments(
       appwriteConfig.databaseId,
